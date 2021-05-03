@@ -44,13 +44,17 @@ import * as ImagePicker from 'expo-image-picker';
     );
   }
 
+function sendCommand(){
+
+}
+
 export default function RobotControlScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>로봇 제어</Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
       <ImagePickerExample/>
-      <Button title="탐색 시작"/>
+      <Button title="탐색 시작" onPress={sendCommand}/>
     </View>
   );
 }
