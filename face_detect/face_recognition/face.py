@@ -95,11 +95,24 @@ if __name__ == "__main__" :
       from jetbot import Camera
       camera = Camera.instance(width=224, height=224)
       camera.start()
-      image = np.copy(camera.value)
+      cam_image = np.copy(camera.value)
       camera.stop()
+    elif args.platform =='mac' :
+      cap = cv2.VideoCapture(0)
+      ret, cam_image = cap.read()
+      print(ret)
+      cv2.imshow('a',cam_image)
+      cv2.waitKey(0)
+      cv2.destroyAllWindows()
 
-      croped_face_nd2 = crop_face_from_nd(image)
-      base2_embedding = infer(model,croped_face_nd2)
+
+
+    croped_face_nd2 = crop_face_from_nd(cam_image)[0]
+    base2_embedding = infer(model,croped_face_nd2)
+    #cv2.imshow('a1',croped_face_nd)
+    #cv2.imshow('b1',croped_face_nd2)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
 
   print("Cosine simillarity : ",cos_sim(base1_embedding, base2_embedding))
   print("Distance : ",	  dist(base1_embedding, base2_embedding))
