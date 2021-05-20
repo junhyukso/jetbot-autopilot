@@ -42,11 +42,15 @@ def encode_image_from_file(impath):
 
 #print(cos_sim(iu_base,iu_base2))
 
+def crop_face_from_nd(ndarray):
+  image = ndarray
+  face_locations = face_recognition.face_locations(image, model="hog")
+  return [ image[top:bottom, left:right] for top,right,bottom,left in face_locations  ]
+
 def crop_face_from_file(impath):
   image = Image.open(impath).convert('RGB')
   image = np.asarray(image)
-  face_locations = face_recognition.face_locations(image, model="hog")
-  return [ image[top:bottom, left:right] for top,right,bottom,left in face_locations  ]
+  return crop_face_from_nd(image)
 
 
 def recog_step(camera_value):
@@ -77,8 +81,6 @@ if __name__ == "__main__" :
     croped_face_nd2 = crop_face_from_file(args.image2)[0]
     base2_embedding = infer(model,croped_face_nd2)
 
-    print("Cosine simillarity : ",cos_sim(base1_embedding, base2_embedding))
-    print("Distance : ",	  dist(base1_embedding, base2_embedding))
     #cv2.imshow('a',croped_face_nd)
     #cv2.imshow('b',croped_face_nd2)
     #cv2.waitKey(0)   #wait for a keyboard input
@@ -87,10 +89,22 @@ if __name__ == "__main__" :
     
   #print("Embedded 128-dim vec : ",base1_embedding)
 #  cv2.imwrite('croped_face.jpg',cv2.cvtColor(croped_face_nd, cv2.COLOR_RGB2BGR))
-  if args.platform == 'jetbot' :
-    from jetbot import Camera
-    camera = Camera.instance(width=224, height=224)
-    camera.start()
+  else : #Use cam
+    print("Using cam")
+    if args.platform == 'jetbot' :
+      from jetbot import Camera
+      camera = Camera.instance(width=224, height=224)
+      camera.start()
+      image = np.copy(camera.value)
+      camera.stop()
+
+      croped_face_nd2 = crop_face_from_nd(image)
+      base2_embedding = infer(model,croped_face_nd2)
+
+  print("Cosine simillarity : ",cos_sim(base1_embedding, base2_embedding))
+  print("Distance : ",	  dist(base1_embedding, base2_embedding))
+
+
 #while True:
 #    recog_step(camera.value)
 #    time.sleep(0.3)
